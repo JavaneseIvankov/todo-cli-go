@@ -8,12 +8,12 @@ import (
 	"github.com/javaneseivankov/todo-cli-go/utils/time_utils"
 )
 
-
 type ShowPayload struct {
    Completed *bool
     DueBefore  *time.Time 
     DueAfter   *time.Time 
     Name   *string    
+	 Overdue *bool
 }
 
 func (p *ShowPayload) bind(args *args_iterator.ArgsIterator) error {
@@ -28,10 +28,11 @@ func (p *ShowPayload) bind(args *args_iterator.ArgsIterator) error {
   }
 
 	flags := map[string]func() {
-    "-done": func() {done := true; p.Completed = &done},
-    "-undone": func() {undone := false; p.Completed = &undone},
+    "-done": func() {v := true; p.Completed = &v},
+    "-undone": func() {v := false; p.Completed = &v},
 	 "-before": func() {p.DueBefore = getTime(args)},
 	 "-after": func() {p.DueAfter = getTime(args)},
+	 "-overdue": func() {v:= true; p.Overdue = &v},
 	}
 
   for (args.HasNext()) {
@@ -48,14 +49,15 @@ func (p *ShowPayload) bind(args *args_iterator.ArgsIterator) error {
 
 type  AddTodoPayload struct{
   name string
-  due string
+  due *time.Time
 }
 
-func (p *AddTodoPayload) bind(args args_iterator.ArgsIterator) error {
+func (p *AddTodoPayload) bind(args *args_iterator.ArgsIterator) error {
+	var err error;
 
   flags := map[string]func(){
     "-task": func() {p.name = args.GetNext()},
-    "-due": func() {p.due = args.GetNext()},
+    "-due": func() {p.due = args.GetNextTime(&err)},
   }
 
   for (args.HasNext()) {

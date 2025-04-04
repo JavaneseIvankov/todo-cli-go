@@ -32,6 +32,13 @@ func filterQueryBuilder(query string,filter QueryFilter) (string, []interface{})
         args = append(args, "%"+*filter.NameLike+"%")
     }
 
+	 // this is bad, we should group filter related to due into one
+	 // to avoid redudancy and contradiction
+	 if filter.Overdue != nil {
+			query += " AND due < ?"
+			args = append(args, time.Now().Format(time.RFC3339))
+	 }
+
     return query, args
 }
 
@@ -114,9 +121,11 @@ func (r *SQLiteTodoRepo) CompleteTodo(id int) error {
 func (r *SQLiteTodoRepo) GetTodos(filter QueryFilter) ([]Todo, error) {
 	 query, args := filterQueryBuilder("SELECT id, name, due, completed FROM todos WHERE 1=1", filter)
     rows, err := r.db.Query(query, args...)
+
     if err != nil {
         return nil, err
     }
+
     defer rows.Close()
 
     var todos []Todo

@@ -12,10 +12,11 @@ type Todo struct {
 }
 
 type QueryFilter struct {
-   Completed *bool
+    Completed  *bool
     DueBefore  *time.Time 
     DueAfter   *time.Time 
     NameLike   *string    
+    Overdue    *bool
 }
 
 

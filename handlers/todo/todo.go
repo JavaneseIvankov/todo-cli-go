@@ -5,7 +5,7 @@ import (
 
 	repository "github.com/javaneseivankov/todo-cli-go/repository/todo_repository"
 	"github.com/javaneseivankov/todo-cli-go/utils/args_iterator"
-	"github.com/javaneseivankov/todo-cli-go/utils/time_utils"
+	t_utils "github.com/javaneseivankov/todo-cli-go/utils/time_utils"
 )
 
 // var repo = repository.NewTodoRepoImpl()
@@ -14,15 +14,15 @@ var repo, err = repository.NewSQLiteTodoRepo("todo.db")
 func displayTodos(todos []repository.Todo) {
   fmt.Println("----Todos----");
   fmt.Printf("%s\t %s\t %s\t %s\n", "Id", "Name", "Due", "Completed");
-  for i, todo := range todos {
-    fmt.Printf("%d\t %s\t %s\t %t\n", i, todo.Name, time_utils.ToHumandReadable(todo.Due), todo.Completed)
+  for _, todo := range todos {
+    fmt.Printf("%d\t %s\t %s\t %t\n", todo.Id, todo.Name, t_utils.ToHumandReadable(todo.Due), todo.Completed)
   }
 }
 
 func AddTodoHandler(args *args_iterator.ArgsIterator) {
   payload := &AddTodoPayload{}
 
-  err := payload.bind(*args); if err != nil {
+  err := payload.bind(args); if err != nil {
     fmt.Println(err)
     return
   }
@@ -53,15 +53,6 @@ func ModifyHandler(args *args_iterator.ArgsIterator) {
   repo.ModifyTodo(payload.id, &payload.name, payload.due)
 }
 
-// func ShowHandler(args *args_iterator.ArgsIterator) {
-// 	todos, err := repo.GetTodos()
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		return
-// 	}
-// 	displayTodos(todos)
-// }
-
 func ShowHandler(args *args_iterator.ArgsIterator) {
    payload := &ShowPayload{}
 
@@ -71,14 +62,16 @@ func ShowHandler(args *args_iterator.ArgsIterator) {
   }
 
   // This is bad, should've been in service layer
-  filter := &repository.QueryFilter{
+  // i need to separate the payload and query filter to fix circular import quickly
+  filter := repository.QueryFilter{
    Completed: payload.Completed,
    DueBefore: payload.DueBefore,
    DueAfter: payload.DueAfter,
    NameLike: payload.Name,
+   Overdue: payload.Overdue,
   }
 
-  todos, err := repo.GetTodos(*filter);
+  todos, err := repo.GetTodos(filter);
   if err != nil {
    fmt.Println(err)
   }

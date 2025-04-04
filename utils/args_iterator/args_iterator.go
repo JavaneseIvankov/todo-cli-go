@@ -1,6 +1,11 @@
 package args_iterator
 
-import "strconv"
+import (
+	"strconv"
+	"time"
+
+	"github.com/javaneseivankov/todo-cli-go/utils/time_utils"
+)
 
 type ArgsIterator struct {
   args []string
@@ -37,3 +42,13 @@ func (i *ArgsIterator) GetNextInt(error *error) int {
   error = &err
   return next
 }
+
+func  (i *ArgsIterator) GetNextTime(error *error) *time.Time  {
+	t, _err := time_utils.ParseUserTime(i.GetNext())
+	if _err != nil {
+	error = &_err
+	return nil
+	}
+	return t
+  }
+
