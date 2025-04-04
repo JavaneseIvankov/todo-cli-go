@@ -13,6 +13,9 @@ func main() {
   args := args_iterator.NewArgsIterator(os.Args[1:]);
   if args.HasNext() {
     switch(args.GetNext()) {
+    case "show":
+      handlers_todo.ShowHandler(args)
+      break;
     case "add":
       handlers_todo.AddTodoHandler(args);
       break;

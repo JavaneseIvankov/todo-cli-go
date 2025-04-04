@@ -3,16 +3,19 @@ package handlers_todo
 import (
 	"fmt"
 
-	"github.com/javaneseivankov/todo-cli-go/repository"
+	repository "github.com/javaneseivankov/todo-cli-go/repository/todo_repository"
 	"github.com/javaneseivankov/todo-cli-go/utils/args_iterator"
+	"github.com/javaneseivankov/todo-cli-go/utils/time_utils"
 )
 
-var repo = repository.NewTodoRepoImpl()
+// var repo = repository.NewTodoRepoImpl()
+var repo, err = repository.NewSQLiteTodoRepo("todo.db")
 
 func displayTodos(todos []repository.Todo) {
   fmt.Println("----Todos----");
+  fmt.Printf("%s\t %s\t %s\t %s\n", "Id", "Name", "Due", "Completed");
   for i, todo := range todos {
-    fmt.Printf("%d --- %s -- %s",i, todo.Name, todo.Due.GoString())
+    fmt.Printf("%d\t %s\t %s\t %t\n", i, todo.Name, time_utils.ToHumandReadable(todo.Due), todo.Completed)
   }
 }
 
@@ -25,8 +28,6 @@ func AddTodoHandler(args *args_iterator.ArgsIterator) {
   }
   repo.AddTodo(payload.name, nil)
 
-  todos, _ := repo.GetTodos()
-  displayTodos(todos)
 }
 
 func DoneHandler(args *args_iterator.ArgsIterator) {
@@ -52,3 +53,35 @@ func ModifyHandler(args *args_iterator.ArgsIterator) {
   repo.ModifyTodo(payload.id, &payload.name, payload.due)
 }
 
+// func ShowHandler(args *args_iterator.ArgsIterator) {
+// 	todos, err := repo.GetTodos()
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		return
+// 	}
+// 	displayTodos(todos)
+// }
+
+func ShowHandler(args *args_iterator.ArgsIterator) {
+   payload := &ShowPayload{}
+
+  if err := payload.bind(args); err != nil {
+    fmt.Println(err)
+    return
+  }
+
+  // This is bad, should've been in service layer
+  filter := &repository.QueryFilter{
+   Completed: payload.Completed,
+   DueBefore: payload.DueBefore,
+   DueAfter: payload.DueAfter,
+   NameLike: payload.Name,
+  }
+
+  todos, err := repo.GetTodos(*filter);
+  if err != nil {
+   fmt.Println(err)
+  }
+
+  displayTodos(todos)
+}
