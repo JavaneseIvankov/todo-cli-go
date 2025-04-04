@@ -1,0 +1,59 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Output of build tools
+bin/
+build/
+
+# Dependency directories (vendor/)
+vendor/
+
+# Go workspace files
+*.mod
+*.sum
+
+# IDE/editor specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*.bak
+
+# Logs and temporary files
+*.log
+*.tmp
+*.out
+*.test
+*.prof
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.*
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Coverage files
+coverage.out
+*.cov
+
+# Go race detector output
+*.race
+
+# Generated files
+gen/
+*.pb.go
+*.pb.gw.go
+
+# Docker-related files
+docker-compose.override.yml
