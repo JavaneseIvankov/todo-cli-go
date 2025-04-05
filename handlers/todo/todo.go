@@ -26,7 +26,7 @@ func AddTodoHandler(args *args_iterator.ArgsIterator) {
     fmt.Println(err)
     return
   }
-  repo.AddTodo(payload.name, nil)
+  repo.AddTodo(payload.name, payload.due)
 
 }
 

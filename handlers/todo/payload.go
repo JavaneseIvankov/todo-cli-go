@@ -56,8 +56,8 @@ func (p *AddTodoPayload) bind(args *args_iterator.ArgsIterator) error {
 	var err error;
 
   flags := map[string]func(){
-    "-task": func() {p.name = args.GetNext()},
-    "-due": func() {p.due = args.GetNextTime(&err)},
+    "-name": func() {p.name = args.GetNextContinous()},
+    "-due": func() {p.due = args.GetNextTimeContinous(&err)},
   }
 
   for (args.HasNext()) {
@@ -80,19 +80,10 @@ type ModifyTodoPayload struct {
 func (p *ModifyTodoPayload) bind(args *args_iterator.ArgsIterator) error {
   var err error;
 
-  getTime := func (args *args_iterator.ArgsIterator) *time.Time  {
-    t, _err := time_utils.ParseUserTime(args.GetNext())
-    if _err != nil {
-      err = _err
-      return nil
-    }
-    return t
-  }
-
   flags := map[string]func(){
     "-id": func() {p.id = args.GetNextInt(&err)},
-    "-name": func() {p.name = args.GetNext()},
-    "-due": func() {p.due = getTime(args)},
+    "-name": func() {p.name = args.GetNextContinous()},
+    "-due": func() {p.due = args.GetNextTimeContinous(&err)},
   }
 
   if err != nil {
