@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -16,9 +17,12 @@ func filterQueryBuilder(query string,filter QueryFilter) (string, []interface{})
     args := []interface{}{}
 
     if filter.Completed != nil {
-        query += " AND completed = ?"
-        args = append(args, *filter.Completed)
-    }
+		if *filter.Completed {
+        query += " AND completed IS NOT NULL "
+		} else {
+        query += " AND completed IS NULL "
+		}
+    } 
     if filter.DueBefore != nil {
         query += " AND due < ?"
         args = append(args, filter.DueBefore.Format(time.RFC3339))
@@ -55,6 +59,7 @@ func NewSQLiteTodoRepo(dbPath string) (ITodoRepository, error) {
         due DATETIME NOT NULL,
         completed DATETIME 
     );`
+
     _, err = db.Exec(createTableQuery)
     if err != nil {
         return nil, err
@@ -121,6 +126,7 @@ func (r *SQLiteTodoRepo) CompleteTodo(id int) error {
 func (r *SQLiteTodoRepo) GetTodos(filter QueryFilter) ([]Todo, error) {
 	 query, args := filterQueryBuilder("SELECT id, name, due, completed FROM todos WHERE 1=1", filter)
     rows, err := r.db.Query(query, args...)
+	 fmt.Println(query)
 
     if err != nil {
         return nil, err
@@ -141,6 +147,7 @@ func (r *SQLiteTodoRepo) GetTodos(filter QueryFilter) ([]Todo, error) {
         if err != nil {
             return nil, err
         }
+		  fmt.Println(todo)
         todos = append(todos, todo)
     }
     return todos, nil
