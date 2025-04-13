@@ -2,21 +2,45 @@ package handlers_todo
 
 import (
 	"fmt"
+	"strconv"
 
 	repository "github.com/javaneseivankov/todo-cli-go/repository/todo_repository"
+	"github.com/javaneseivankov/todo-cli-go/ui/cli"
 	"github.com/javaneseivankov/todo-cli-go/utils/args_iterator"
-	t_utils "github.com/javaneseivankov/todo-cli-go/utils/time_utils"
+	"github.com/javaneseivankov/todo-cli-go/utils/time_utils"
 )
 
-// var repo = repository.NewTodoRepoImpl()
 var repo, err = repository.NewSQLiteTodoRepo("todo.db")
 
+// func displayTodos(todos []repository.Todo) {
+//   fmt.Println()
+//   fmt.Println("----Todos----");
+//   fmt.Printf("%s\t %s\t %s\t %s\n", "Id", "Name", "Due", "Completed");
+//   for _, todo := range todos {
+//     fmt.Printf("%d\t %s\t %s\t %s\n", todo.Id, todo.Name, time_utils.ToHumandReadable(todo.Due),  time_utils.ToHumandReadable(*todo.Completed))
+//   }
+//   fmt.Println()
+// }
+
+func getDisplayValues(todo repository.Todo) []string {
+	id, name, due, completed := "-", "-", "-", "-"
+	id = strconv.Itoa(todo.Id)
+	name = todo.Name
+	due = time_utils.ToHumandReadable(todo.Due)
+	if todo.Completed != nil {
+		completed = time_utils.ToHumandReadable(*todo.Completed)
+	}
+	return []string{id, name, due, completed}
+}
+
 func displayTodos(todos []repository.Todo) {
-  fmt.Println("----Todos----");
-  fmt.Printf("%s\t %s\t %s\t %s\n", "Id", "Name", "Due", "Completed");
-  for _, todo := range todos {
-    fmt.Printf("%d\t %s\t %s\t %t\n", todo.Id, todo.Name, t_utils.ToHumandReadable(todo.Due), todo.Completed)
-  }
+	table := cli.CreateTable(4)
+  table.SetHeaders([]string{"ID", "Name", "Due", "Completed"})
+	for _, todo := range todos {
+		values := getDisplayValues(todo)
+		table.Append(values)
+	}
+	table.Render()
 }
 
 func AddTodoHandler(args *args_iterator.ArgsIterator) {
