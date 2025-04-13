@@ -30,7 +30,7 @@ func (r *NativeMapTodoRepo) DeleteTodo(id int) error {
 
 func (r *NativeMapTodoRepo) CompleteTodo(id int) error {
   if (utils.KeyExists(r.store, id)) {
-    r.store[id].Completed = true
+    r.store[id].Completed = nil
     return nil
   }
   return errors.New("Todo with corresponding id doesnt exist!!") 

@@ -53,7 +53,7 @@ func NewSQLiteTodoRepo(dbPath string) (ITodoRepository, error) {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         due DATETIME NOT NULL,
-        completed BOOLEAN NOT NULL DEFAULT 0
+        completed DATETIME 
     );`
     _, err = db.Exec(createTableQuery)
     if err != nil {
@@ -69,7 +69,7 @@ func (r *SQLiteTodoRepo) AddTodo(name string, due *time.Time) (int, error) {
         due = &defaultDue
     }
 
-    result, err := r.db.Exec("INSERT INTO todos (name, due, completed) VALUES (?, ?, ?)", name, due.Format(time.RFC3339), false)
+    result, err := r.db.Exec("INSERT INTO todos (name, due, completed) VALUES (?, ?, ?)", name, due.Format(time.RFC3339), nil)
     if err != nil {
         return 0, err
     }
@@ -101,7 +101,7 @@ func (r *SQLiteTodoRepo) DeleteTodo(id int) error {
 }
 
 func (r *SQLiteTodoRepo) CompleteTodo(id int) error {
-    result, err := r.db.Exec("UPDATE todos SET completed = ? WHERE id = ?", true, id)
+    result, err := r.db.Exec("UPDATE todos SET completed = ? WHERE id = ?", time.Now().Format(time.RFC3339), id)
     if err != nil {
         return err
     }
@@ -141,10 +141,8 @@ func (r *SQLiteTodoRepo) GetTodos(filter QueryFilter) ([]Todo, error) {
         if err != nil {
             return nil, err
         }
-
         todos = append(todos, todo)
     }
-
     return todos, nil
 }
 

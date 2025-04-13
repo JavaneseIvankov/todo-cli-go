@@ -8,7 +8,7 @@ type Todo struct {
   Id int
   Name string
   Due time.Time
-  Completed bool
+  Completed *time.Time
 }
 
 type QueryFilter struct {
